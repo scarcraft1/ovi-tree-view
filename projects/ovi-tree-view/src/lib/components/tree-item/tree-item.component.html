@@ -1,0 +1,4 @@
+{{item.name}}
+<div *ngIf="item.items.length && expanded">
+  <ovi-tree-item *ngFor="let child of item.items" [item]="child"></ovi-tree-item>
+</div>
