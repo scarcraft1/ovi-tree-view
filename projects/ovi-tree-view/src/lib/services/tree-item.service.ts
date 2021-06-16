@@ -11,6 +11,8 @@ export class TreeItemService {
   private _focusedItem = new BehaviorSubject<TreeItem | null>(null);
   private _selectedItem = new BehaviorSubject<TreeItem | null>(null);
 
+  public moveFocus = false;
+
   public get expandedItems$() {
     return this._expandedItems.asObservable();
   }
@@ -21,62 +23,32 @@ export class TreeItemService {
     return this._selectedItem.asObservable();
   }
 
-  public buildState(items: TreeItem[]) {
+  public buildState(items: TreeItem[], selectedItem?: TreeItem) {
     this._items = items;
     this._expandedItems.next([]);
-    this._focusableItems = BuildFocusableTree(
-      this._items,
-      this._expandedItems.getValue()
-    );
-    this._focusedItem.next(null);
+    this._focusableItems = this._items;
+    this.selectItem(selectedItem || items[0]);
   }
 
-  public expandFocusedItem(): void {
-    const focusedItem = this._focusedItem.getValue();
-    if (focusedItem) {
-      this._expandedItems.next(
-        this._expandedItems
-          .getValue()
-          .filter((e) => e.key !== focusedItem.key)
-          .concat(focusedItem)
-      );
-      this._focusableItems = BuildFocusableTree(
-        this._items,
-        this._expandedItems.getValue()
-      );
-    }
+  public expandItem(item: TreeItem): void {
+    const expandedItems = this._expandedItems
+      .getValue()
+      .filter((i) => i.key !== item.key)
+      .concat(item);
+    this._expandedItems.next(expandedItems);
+    this._focusableItems = BuildFocusableTree(this._items, expandedItems);
   }
 
-  public expandAllFocusedItemSiblings(): void {
-    const focusedItem = this._focusedItem.getValue();
-    if (focusedItem) {
-      const parent = GetParent(this._items, focusedItem);
-      if (parent) {
-        this._expandedItems.next(
-          this._expandedItems
-            .getValue()
-            .filter((e) => parent.items.every((c) => c.key !== e.key))
-            .concat(parent.items)
-        );
-        this._focusableItems = BuildFocusableTree(
-          this._items,
-          this._expandedItems.getValue()
-        );
-      }
-    }
+  public collapseItem(item: TreeItem): void {
+    const expandedItems = this._expandedItems.getValue().filter((i) => i.key !== item.key);
+    this._expandedItems.next(expandedItems);
+    this._focusableItems = BuildFocusableTree(this._items, expandedItems);
   }
 
-  public collapseFocusedItem(): void {
-    const focusedItem = this._focusedItem.getValue();
-    if (focusedItem) {
-      this._expandedItems.next(
-        this._expandedItems.getValue().filter((e) => e.key !== focusedItem.key)
-      );
-      this._focusableItems = BuildFocusableTree(
-        this._items,
-        this._expandedItems.getValue()
-      );
-    }
+  public expandAllSiblings(item: TreeItem): void {
+    const parent = GetParent(this._items, item);
+    const itemsToExpand = parent ? parent.items : this._items;
+    itemsToExpand.forEach((i) => this.expandItem(i));
   }
 
   public focusItem(item: TreeItem) {
@@ -85,49 +57,39 @@ export class TreeItemService {
     }
   }
 
-  public focusNextItem(): void {
-    const focusedItem = this._focusedItem.getValue();
-    if (focusedItem) {
-      const idx = this._focusableItems.findIndex(
-        (i) => i.key === focusedItem.key
-      );
+  public focusNextItem(item: TreeItem): void {
+    const idx = this._focusableItems.findIndex((i) => i.key === item.key);
+    if (idx < this._focusableItems.length - 1) {
       this._focusedItem.next(this._focusableItems[idx + 1]);
     }
   }
 
-  public focusPreviousItem(): void {
-    const focusedItem = this._focusedItem.getValue();
-    if (focusedItem) {
-      const idx = this._focusableItems.findIndex(
-        (i) => i.key === focusedItem.key
-      );
+  public focusPreviousItem(item: TreeItem): void {
+    const idx = this._focusableItems.findIndex((i) => i.key === item.key);
+    if (idx > 0) {
       this._focusedItem.next(this._focusableItems[idx - 1]);
     }
   }
 
   public selectItem(item: TreeItem) {
-    let tree = this._items;
-    while (this._focusedItem.getValue()?.key !== item.key) {
-      if (this._focusableItems.some((f) => f.key === item.key)) {
-        this._selectedItem.next(item);
-        this._focusedItem.next(item);
-      } else {
-        let parent = GetTopParent(tree, item);
-        if (
-          parent &&
-          !this._expandedItems.getValue().some((i) => i.key === parent?.key)
-        ) {
-          this._expandedItems.next(
-            this._expandedItems.getValue().concat(parent)
-          );
-          this._focusableItems = BuildFocusableTree(
-            this._items,
-            this._expandedItems.getValue()
-          );
-        } else if (!parent) {
-          break;
+    if (this._focusedItem.getValue()?.key === item.key) {
+      this._selectedItem.next(item);
+    } else {
+      let tree = this._items;
+      while (this._focusedItem.getValue()?.key !== item.key) {
+        if (this._focusableItems.some((f) => f.key === item.key)) {
+          this._selectedItem.next(item);
+          this._focusedItem.next(item);
+        } else {
+          let parent = GetTopParent(tree, item);
+          if (parent && !this._expandedItems.getValue().some((i) => i.key === parent?.key)) {
+            this._expandedItems.next(this._expandedItems.getValue().concat(parent));
+            this._focusableItems = BuildFocusableTree(this._items, this._expandedItems.getValue());
+          } else if (!parent) {
+            break;
+          }
+          tree = parent.items;
         }
-        tree = parent.items;
       }
     }
   }

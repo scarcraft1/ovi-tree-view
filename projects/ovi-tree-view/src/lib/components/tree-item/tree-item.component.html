@@ -1,4 +1,9 @@
-{{item.name}}
-<div *ngIf="item.items.length && expanded">
+<div>
+  <span *ngIf="item.items.length" (click)="toggle()">
+    {{ expanded ? '▼' : '►'}}
+  </span>
+  <span (click)="select()">{{item.name}}</span>
+</div>
+<div *ngIf="item.items.length && expanded" role="group">
   <ovi-tree-item *ngFor="let child of item.items" [item]="child"></ovi-tree-item>
 </div>

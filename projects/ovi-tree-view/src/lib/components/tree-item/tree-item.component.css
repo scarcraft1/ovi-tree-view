@@ -1,0 +1,23 @@
+:host {
+  display: block;
+  padding-block: 0.25em;
+}
+:host:focus {
+  outline: none;
+}
+:host:focus > div:first-child {
+  outline: 1px dotted;
+}
+:host > div:first-child {
+  padding-inline: 0.15em;
+  cursor: pointer;
+}
+:host[aria-selected="true"] > div:first-child {
+  background-color: goldenrod;
+}
+:host > div[role="group"] {
+  margin-inline-start: 0.5em;
+  border-left: 1px solid;
+  padding-inline-start: 1em;
+  margin-block: 0.25em;
+}
