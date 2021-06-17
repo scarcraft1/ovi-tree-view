@@ -10,6 +10,8 @@ export class TreeItemService {
   private _expandedItems = new BehaviorSubject<TreeItem[]>([]);
   private _focusedItem = new BehaviorSubject<TreeItem | null>(null);
   private _selectedItem = new BehaviorSubject<TreeItem | null>(null);
+  private _searchTerm: string = '';
+  private _clearSearchTimeout: any;
 
   public moveFocus = false;
 
@@ -43,6 +45,28 @@ export class TreeItemService {
     const expandedItems = this._expandedItems.getValue().filter((i) => i.key !== item.key);
     this._expandedItems.next(expandedItems);
     this._focusableItems = BuildFocusableTree(this._items, expandedItems);
+  }
+
+  public searchItem(searchTerm: string, debounceTime: number = 500): void {
+    const focusedItem = this._focusedItem.getValue();
+    if (!focusedItem) {
+      return;
+    }
+
+    clearTimeout(this._clearSearchTimeout);
+    this._searchTerm += searchTerm;
+    this._clearSearchTimeout = setTimeout(() => {
+      const idx = this._focusableItems.findIndex((i) => i.key === focusedItem.key) || 0;
+      const nextItem = this._focusableItems
+        .slice(idx)
+        .concat(this._focusableItems.slice(0, idx))
+        .slice(1)
+        .find((i) => i.name.toLowerCase().startsWith(this._searchTerm.toLowerCase()));
+      if (nextItem) {
+        this._focusedItem.next(nextItem);
+      }
+      this._searchTerm = '';
+    }, debounceTime);
   }
 
   public expandAllSiblings(item: TreeItem): void {

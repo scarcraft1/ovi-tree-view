@@ -81,6 +81,11 @@ export class OviTreeItemComponent implements OnInit, OnDestroy {
         $event.stopImmediatePropagation();
         break;
       default:
+        if (new RegExp('^[a-zñ]$', 'i').test($event.key)) {
+          this.service.moveFocus = true;
+          this.service.searchItem($event.key);
+          $event.stopImmediatePropagation();
+        }
         break;
     }
   }
