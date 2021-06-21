@@ -4,10 +4,14 @@ import { OviTreeItem } from 'ovi-tree-view';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent {
   title = 'tree-view-demo';
+
+  public log(obj: any) {
+    console.log(obj);
+  }
 
   items: OviTreeItem[] = [
     {

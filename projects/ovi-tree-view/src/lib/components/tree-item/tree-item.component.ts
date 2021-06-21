@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, Input, OnDestroy, OnInit, Renderer2 } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, OnDestroy, OnInit, Renderer2, TemplateRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TreeItem } from '../../models';
@@ -10,10 +10,11 @@ import { TreeItemService } from '../../services';
   host: { role: 'tree-item' },
   styleUrls: ['./tree-item.component.css'],
 })
-export class OviTreeItemComponent implements OnInit, OnDestroy {
+export class OviTreeItemComponent<T extends TreeItem> implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   public expanded = false;
-  @Input() public item!: TreeItem;
+  @Input() public item!: T;
+  @Input() public template?: TemplateRef<any>;
 
   constructor(
     private el: ElementRef,
@@ -31,6 +32,11 @@ export class OviTreeItemComponent implements OnInit, OnDestroy {
   }
 
   public select(): void {
+    if (this.expanded) {
+      this.service.collapseItem(this.item);
+    } else {
+      this.service.expandItem(this.item);
+    }
     this.service.selectItem(this.item);
   }
 
@@ -101,7 +107,7 @@ export class OviTreeItemComponent implements OnInit, OnDestroy {
               this.renderer.setAttribute(this.el.nativeElement, 'aria-expanded', 'true');
             } else {
               this.expanded = false;
-              this.renderer.setAttribute(this.el.nativeElement, 'aria-expanded', 'true');
+              this.renderer.setAttribute(this.el.nativeElement, 'aria-expanded', 'false');
             }
           })
       );

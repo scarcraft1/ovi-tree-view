@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { COMPONENTS, PUBLIC_COMPONENTS } from './components';
+import { COMPONENTS, OviTreeItemDirective, PUBLIC_COMPONENTS } from './components';
 
 @NgModule({
-  declarations: [...COMPONENTS],
+  declarations: [...COMPONENTS, OviTreeItemDirective],
   imports: [CommonModule],
-  exports: [...PUBLIC_COMPONENTS],
+  exports: [...PUBLIC_COMPONENTS, OviTreeItemDirective],
 })
-export class OviTreeViewModule {}
+export class OviTreeViewModule { }

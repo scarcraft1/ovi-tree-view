@@ -1,0 +1,3 @@
+ovi-tree-item[aria-selected="true"] > span:first-child {
+  background-color: hotpink !important;
+}

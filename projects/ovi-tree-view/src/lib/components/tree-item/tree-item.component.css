@@ -1,23 +1,42 @@
 :host {
   display: block;
-  padding-block: 0.25em;
 }
 :host:focus {
   outline: none;
 }
-:host:focus > div:first-child {
+:host:focus > span:first-child {
   outline: 1px dotted;
 }
-:host > div:first-child {
-  padding-inline: 0.15em;
-  cursor: pointer;
+:host > span:first-child {
+  padding: 0.15em 0.25em;
+  display: inline-block;
 }
-:host[aria-selected="true"] > div:first-child {
+:host > span:first-child:hover {
+  background-color: rgba(218, 165, 32, 0.55);
+}
+:host[aria-expanded] > span:first-child:before {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  cursor: pointer;
+  margin-inline-end: 0.25em;
+}
+:host[aria-expanded="true"] > span:first-child:before {
+  content: "▼";
+}
+:host[aria-expanded="false"] > span:first-child:before {
+  content: "►";
+}
+:host:not([aria-expanded]) > span:first-child {
+  margin-inline-start: -0.5em;
+  padding-inline-start: 0.75em;
+}
+:host[aria-selected="true"] > span:first-child {
   background-color: goldenrod;
 }
 :host > div[role="group"] {
-  margin-inline-start: 0.5em;
+  margin-inline-start: 0.75em;
   border-left: 1px solid;
-  padding-inline-start: 1em;
-  margin-block: 0.25em;
+  padding-inline-start: 0.5em;
+  margin-block-end: 0.25em;
 }
