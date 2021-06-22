@@ -56,8 +56,10 @@ export class OviTreeItemComponent<T extends TreeItem> implements OnInit, OnDestr
         break;
       case 'ArrowRight':
         if (this.expanded) {
-          this.service.moveFocus = true;
-          this.service.focusNextItem(this.item);
+          if (this.item.items.length) {
+            this.service.moveFocus = true;
+            this.service.focusNextItem(this.item);
+          }
         } else {
           this.service.expandItem(this.item);
         }
@@ -73,8 +75,18 @@ export class OviTreeItemComponent<T extends TreeItem> implements OnInit, OnDestr
           this.service.collapseItem(this.item);
         } else {
           this.service.moveFocus = true;
-          this.service.focusPreviousItem(this.item);
+          this.service.focusParent(this.item);
         }
+        $event.stopImmediatePropagation();
+        break;
+      case 'Home':
+        this.service.moveFocus = true;
+        this.service.focusFirstFocusableNode();
+        $event.stopImmediatePropagation();
+        break;
+      case 'End':
+        this.service.moveFocus = true;
+        this.service.focusLastFocusableNode();
         $event.stopImmediatePropagation();
         break;
       case '*':

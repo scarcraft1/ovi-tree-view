@@ -81,6 +81,25 @@ export class TreeItemService {
     }
   }
 
+  public focusParent(item: TreeItem) {
+    const parent = GetParent(this._items, item);
+    if (parent) {
+      this.focusItem(parent);
+    }
+  }
+
+  public focusFirstFocusableNode() {
+    if (this._focusableItems.length) {
+      this._focusedItem.next(this._focusableItems[0]);
+    }
+  }
+
+  public focusLastFocusableNode() {
+    if (this._focusableItems.length) {
+      this._focusedItem.next(this._focusableItems.slice(-1)[0]);
+    }
+  }
+
   public focusNextItem(item: TreeItem): void {
     const idx = this._focusableItems.findIndex((i) => i.key === item.key);
     if (idx < this._focusableItems.length - 1) {
