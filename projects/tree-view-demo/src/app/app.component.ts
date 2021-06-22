@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { OviTreeItem } from 'ovi-tree-view';
+import { CreateTreeItem } from './utils/create-tree-item';
 
 @Component({
   selector: 'app-root',
@@ -13,50 +14,5 @@ export class AppComponent {
     console.log(obj);
   }
 
-  items: OviTreeItem[] = [
-    {
-      key: 1,
-      name: 'Tomo 1',
-      items: [
-        {
-          key: 11,
-          name: 'Libro 1',
-          items: [
-            {
-              key: 111,
-              name: 'Sección 1',
-              items: [],
-            },
-            {
-              key: 112,
-              name: 'Sección 2',
-              items: [],
-            },
-          ],
-        },
-        {
-          key: 12,
-          name: 'Libro 2',
-          items: [
-            {
-              key: 121,
-              name: 'Seccion 1',
-              items: [],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      key: 2,
-      name: 'Tomo 2',
-      items: [
-        {
-          key: 21,
-          name: 'Libro 1',
-          items: [],
-        },
-      ],
-    },
-  ];
+  items: OviTreeItem[] = Array.from(new Array(Math.floor(Math.random() * 2) + 1), () => CreateTreeItem());
 }

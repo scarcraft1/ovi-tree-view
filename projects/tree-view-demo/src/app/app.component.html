@@ -1,5 +1,8 @@
 <ovi-tree-view [items]="items">
   <ng-template oviTreeItem let-item="item">
-    <button type="button" (click)="log(item.name)">{{item.name}}</button>
+    <b>ID: </b> {{item.key}} |
+    <b>Name: </b> {{item.name}} |
+    <b>Carátula: </b> {{item.caratula}}
+    <div><b>Archivo:</b> {{item.archivo}}</div>
   </ng-template>
 </ovi-tree-view>
