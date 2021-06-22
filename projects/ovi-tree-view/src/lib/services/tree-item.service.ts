@@ -5,8 +5,8 @@ import { BuildFocusableTree, GetParent, GetTopParent } from '../utils';
 
 @Injectable({ providedIn: 'root' })
 export class TreeItemService {
-  private _items: TreeItem[] = [];
   private _focusableItems: TreeItem[] = [];
+  private _items = new BehaviorSubject<TreeItem[]>([]);
   private _expandedItems = new BehaviorSubject<TreeItem[]>([]);
   private _focusedItem = new BehaviorSubject<TreeItem | null>(null);
   private _selectedItem = new BehaviorSubject<TreeItem | null>(null);
@@ -24,11 +24,14 @@ export class TreeItemService {
   public get selectedItem$() {
     return this._selectedItem.asObservable();
   }
+  public get items$() {
+    return this._items.asObservable();
+  }
 
   public buildState(items: TreeItem[], selectedItem?: TreeItem) {
-    this._items = items;
+    this._items.next(items);
     this._expandedItems.next([]);
-    this._focusableItems = this._items;
+    this._focusableItems = this._items.getValue();
     this.selectItem(selectedItem || items[0]);
   }
 
@@ -38,13 +41,13 @@ export class TreeItemService {
       .filter((i) => i.key !== item.key)
       .concat(item);
     this._expandedItems.next(expandedItems);
-    this._focusableItems = BuildFocusableTree(this._items, expandedItems);
+    this._focusableItems = BuildFocusableTree(this._items.getValue(), expandedItems);
   }
 
   public collapseItem(item: TreeItem): void {
     const expandedItems = this._expandedItems.getValue().filter((i) => i.key !== item.key);
     this._expandedItems.next(expandedItems);
-    this._focusableItems = BuildFocusableTree(this._items, expandedItems);
+    this._focusableItems = BuildFocusableTree(this._items.getValue(), expandedItems);
   }
 
   public searchItem(searchTerm: string, debounceTime: number = 500): void {
@@ -70,8 +73,8 @@ export class TreeItemService {
   }
 
   public expandAllSiblings(item: TreeItem): void {
-    const parent = GetParent(this._items, item);
-    const itemsToExpand = parent ? parent.items : this._items;
+    const parent = GetParent(this._items.getValue(), item);
+    const itemsToExpand = parent ? parent.items : this._items.getValue();
     itemsToExpand.forEach((i) => this.expandItem(i));
   }
 
@@ -82,7 +85,7 @@ export class TreeItemService {
   }
 
   public focusParent(item: TreeItem) {
-    const parent = GetParent(this._items, item);
+    const parent = GetParent(this._items.getValue(), item);
     if (parent) {
       this.focusItem(parent);
     }
@@ -118,7 +121,7 @@ export class TreeItemService {
     if (this._focusedItem.getValue()?.key === item.key) {
       this._selectedItem.next(item);
     } else {
-      let tree = this._items;
+      let tree = this._items.getValue();
       while (this._focusedItem.getValue()?.key !== item.key) {
         if (this._focusableItems.some((f) => f.key === item.key)) {
           this._selectedItem.next(item);
@@ -127,7 +130,7 @@ export class TreeItemService {
           let parent = GetTopParent(tree, item);
           if (parent && !this._expandedItems.getValue().some((i) => i.key === parent?.key)) {
             this._expandedItems.next(this._expandedItems.getValue().concat(parent));
-            this._focusableItems = BuildFocusableTree(this._items, this._expandedItems.getValue());
+            this._focusableItems = BuildFocusableTree(this._items.getValue(), this._expandedItems.getValue());
           } else if (!parent) {
             break;
           }

@@ -1,4 +1,4 @@
-<ovi-tree-view [items]="items">
+<ovi-tree-view [items]="items" [(ngModel)]="selectedItem">
   <ng-template oviTreeItem let-item="item">
     <b>ID: </b> {{item.key}} |
     <b>Name: </b> {{item.name}} |
@@ -6,3 +6,7 @@
     <div><b>Archivo:</b> {{item.archivo}}</div>
   </ng-template>
 </ovi-tree-view>
+<div *ngIf="selectedItem">
+  <b>Selected Value:</b>
+  <div>{{selectedItem.key}} -> {{selectedItem.name}}</div>
+</div>
